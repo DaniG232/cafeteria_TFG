@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128736; Panel de Administracion</h1>
+        <p>Bienvenido, <span th:text="${usuario.nombre}"></span> (Cocinero)</p>
+
+        <div class="grid">
+            <div class="card admin-card">
+                <h2>&#127860; Platos</h2>
+                <p><span th:text="${totalPlatos}"></span> platos registrados</p>
+                <a href="/admin/platos" class="btn btn-primary">Gestionar Platos</a>
+            </div>
+
+            <div class="card admin-card">
+                <h2>&#127869; Menus</h2>
+                <p><span th:text="${totalMenus}"></span> menus proximos</p>
+                <a href="/admin/menus" class="btn btn-primary">Gestionar Menus</a>
+            </div>
+
+            <div class="card admin-card">
+                <h2>&#128202; Encuestas</h2>
+                <p><span th:text="${totalEncuestas}"></span> encuestas creadas</p>
+                <a href="/admin/encuestas" class="btn btn-primary">Gestionar Encuestas</a>
+            </div>
+
+            <div class="card admin-card">
+                <h2>&#128203; Reservas</h2>
+                <p>Gestion de reservas de profesores</p>
+                <a href="/admin/reservas" class="btn btn-primary">Ver Reservas</a>
+            </div>
+
+            <div class="card admin-card">
+                <h2>&#128100; Usuarios</h2>
+                <p>Gestion de usuarios del sistema</p>
+                <a href="/admin/usuarios" class="btn btn-primary">Gestionar Usuarios</a>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

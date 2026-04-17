@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>Bienvenido, <span th:text="${usuario.nombre}"></span>!</h1>
+
+        <!-- ===== MENU DEL DIA ===== -->
+        <section class="card">
+            <h2>&#127869; Menu de Hoy</h2>
+            <div th:if="${menuHoy != null}">
+                <table class="table">
+                    <tr>
+                        <th>Primer Plato</th>
+                        <td th:text="${menuHoy.primerPlato.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Segundo Plato</th>
+                        <td th:text="${menuHoy.segundoPlato.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Postre</th>
+                        <td th:text="${menuHoy.postre.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Bebida</th>
+                        <td th:text="${menuHoy.bebida.nombre}"></td>
+                    </tr>
+                </table>
+                <a th:href="@{'/menus/' + ${menuHoy.idMenu}}" class="btn btn-primary">
+                    Ver detalle / Reservar
+                </a>
+            </div>
+            <p th:if="${menuHoy == null}" class="text-muted">
+                No hay menu disponible para hoy.
+            </p>
+        </section>
+
+        <!-- ===== MENUS PROXIMOS ===== -->
+        <section class="card">
+            <h2>&#128197; Proximos Menus</h2>
+            <div th:if="${!menusProximos.isEmpty()}">
+                <div class="grid" th:each="menu : ${menusProximos}">
+                    <div class="card-small">
+                        <h3 th:text="${menu.fecha}"></h3>
+                        <p><strong>1ro:</strong> <span th:text="${menu.primerPlato.nombre}"></span></p>
+                        <p><strong>2do:</strong> <span th:text="${menu.segundoPlato.nombre}"></span></p>
+                        <p><strong>Postre:</strong> <span th:text="${menu.postre.nombre}"></span></p>
+                        <p><strong>Bebida:</strong> <span th:text="${menu.bebida.nombre}"></span></p>
+                        <a th:href="@{'/menus/' + ${menu.idMenu}}" class="btn btn-sm">Ver / Reservar</a>
+                    </div>
+                </div>
+            </div>
+            <p th:if="${menusProximos.isEmpty()}" class="text-muted">
+                No hay menus proximos disponibles.
+            </p>
+        </section>
+
+        <!-- ===== MIS RESERVAS ===== -->
+        <section class="card" sec:authorize="hasRole('PROFESOR')">
+            <h2>&#128203; Mis Reservas</h2>
+            <div th:if="${!misReservas.isEmpty()}">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha Menu</th>
+                            <th>Estado</th>
+                            <th>Codigo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="reserva : ${misReservas}">
+                            <td th:text="${reserva.menu.fecha}"></td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${reserva.estado == 'PENDIENTE'} ? 'badge-warning' :
+                                                       (${reserva.estado == 'RECOGIDA'} ? 'badge-success' : 'badge-error')"
+                                      th:text="${reserva.estado}"></span>
+                            </td>
+                            <td th:text="${reserva.codigoRecogida}"></td>
+                            <td>
+                                <form th:if="${reserva.estado == 'PENDIENTE'}"
+                                      th:action="@{'/menus/reservas/' + ${reserva.idReserva} + '/cancelar'}"
+                                      method="post" style="display:inline">
+                                    <button type="submit" class="btn btn-sm btn-danger">Cancelar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p th:if="${misReservas.isEmpty()}" class="text-muted">
+                No tienes reservas.
+            </p>
+        </section>
+
+        <!-- ===== ENCUESTAS ===== -->
+        <section class="card">
+            <h2>&#128202; Encuestas</h2>
+            <div th:if="${!encuestas.isEmpty()}">
+                <div th:each="encuesta : ${encuestas}" class="card-small">
+                    <h3 th:text="${encuesta.titulo}"></h3>
+                    <p th:text="${encuesta.descripcion}"></p>
+                    <a th:href="@{'/encuestas/' + ${encuesta.idEncuesta}}" class="btn btn-sm">
+                        Ver encuesta
+                    </a>
+                </div>
+            </div>
+            <p th:if="${encuestas.isEmpty()}" class="text-muted">
+                No hay encuestas disponibles.
+            </p>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

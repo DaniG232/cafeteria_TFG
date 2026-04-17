@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Menu - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#127869; Menu del <span th:text="${menu.fecha}"></span></h1>
+
+        <div class="card">
+            <table class="table">
+                <tr>
+                    <th>Primer Plato</th>
+                    <td>
+                        <strong th:text="${menu.primerPlato.nombre}"></strong>
+                        <br>
+                        <small th:text="${menu.primerPlato.descripcion}"></small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Segundo Plato</th>
+                    <td>
+                        <strong th:text="${menu.segundoPlato.nombre}"></strong>
+                        <br>
+                        <small th:text="${menu.segundoPlato.descripcion}"></small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Postre</th>
+                    <td>
+                        <strong th:text="${menu.postre.nombre}"></strong>
+                        <br>
+                        <small th:text="${menu.postre.descripcion}"></small>
+                    </td>
+                </tr>
+                <tr>
+                    <th>Bebida</th>
+                    <td>
+                        <strong th:text="${menu.bebida.nombre}"></strong>
+                        <br>
+                        <small th:text="${menu.bebida.descripcion}"></small>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Boton de reserva (solo profesores) -->
+            <div sec:authorize="hasRole('PROFESOR')">
+                <div th:if="${!tieneReserva}">
+                    <form th:action="@{'/menus/' + ${menu.idMenu} + '/reservar'}" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            &#9989; Reservar este menu
+                        </button>
+                    </form>
+                </div>
+                <div th:if="${tieneReserva}">
+                    <p class="alert alert-success">Ya tienes una reserva para este menu.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservas de este menu (visible para cocineros) -->
+        <div sec:authorize="hasRole('COCINERO')" class="card">
+            <h2>Reservas para este menu</h2>
+            <table th:if="${!reservasMenu.isEmpty()}" class="table">
+                <thead>
+                    <tr>
+                        <th>Profesor</th>
+                        <th>Estado</th>
+                        <th>Codigo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="reserva : ${reservasMenu}">
+                        <td th:text="${reserva.usuario.nombre}"></td>
+                        <td th:text="${reserva.estado}"></td>
+                        <td th:text="${reserva.codigoRecogida}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <p th:if="${reservasMenu.isEmpty()}" class="text-muted">
+                Aun no hay reservas para este menu.
+            </p>
+        </div>
+
+        <a href="/menus" class="btn btn-secondary">Volver a menus</a>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

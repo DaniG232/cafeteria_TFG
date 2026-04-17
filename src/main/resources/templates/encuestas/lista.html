@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuestas - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128202; Encuestas</h1>
+
+        <div th:if="${!encuestas.isEmpty()}" class="grid">
+            <div th:each="encuesta : ${encuestas}" class="card">
+                <h3 th:text="${encuesta.titulo}"></h3>
+                <p th:text="${encuesta.descripcion}"></p>
+                <small class="text-muted" th:text="'Creada: ' + ${encuesta.fechaCreacion}"></small>
+                <br>
+                <a th:href="@{'/encuestas/' + ${encuesta.idEncuesta}}" class="btn btn-primary btn-sm">
+                    Ver encuesta
+                </a>
+            </div>
+        </div>
+
+        <p th:if="${encuestas.isEmpty()}" class="text-muted">
+            No hay encuestas disponibles.
+        </p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

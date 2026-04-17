@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuestas - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128202; Gestion de Encuestas</h1>
+        <a href="/admin/encuestas/nueva" class="btn btn-primary">+ Nueva Encuesta</a>
+        <a href="/admin" class="btn btn-secondary">Volver al panel</a>
+
+        <table th:if="${!encuestas.isEmpty()}" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titulo</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="encuesta : ${encuestas}">
+                    <td th:text="${encuesta.idEncuesta}"></td>
+                    <td th:text="${encuesta.titulo}"></td>
+                    <td th:text="${encuesta.fechaCreacion}"></td>
+                    <td>
+                        <a th:href="@{'/encuestas/' + ${encuesta.idEncuesta}}"
+                           class="btn btn-sm">Ver</a>
+                        <form th:action="@{'/admin/encuestas/' + ${encuesta.idEncuesta} + '/eliminar'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${encuestas.isEmpty()}" class="text-muted">No hay encuestas creadas.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

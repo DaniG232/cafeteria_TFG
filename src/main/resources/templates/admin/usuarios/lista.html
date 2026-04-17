@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128100; Gestion de Usuarios</h1>
+        <a href="/admin" class="btn btn-secondary">Volver al panel</a>
+
+        <table th:if="${!usuarios.isEmpty()}" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Fecha Registro</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.nombre}"></td>
+                    <td th:text="${u.rol}"></td>
+                    <td th:text="${u.fechaRegistro}"></td>
+                    <td>
+                        <span th:if="${u.estado}" class="badge badge-success">Activo</span>
+                        <span th:if="${!u.estado}" class="badge badge-error">Inactivo</span>
+                    </td>
+                    <td>
+                        <form th:if="${u.estado}"
+                              th:action="@{'/admin/usuarios/' + ${u.email} + '/desactivar'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+                        </form>
+                        <form th:if="${!u.estado}"
+                              th:action="@{'/admin/usuarios/' + ${u.email} + '/activar'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-success">Activar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${usuarios.isEmpty()}" class="text-muted">No hay usuarios registrados.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

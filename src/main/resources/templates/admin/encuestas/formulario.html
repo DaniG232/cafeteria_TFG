@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Encuesta - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128202; Nueva Encuesta</h1>
+
+        <div class="card">
+            <form action="/admin/encuestas/nueva" method="post" th:object="${encuesta}">
+                <div class="form-group">
+                    <label for="titulo">Titulo:</label>
+                    <input type="text" id="titulo" th:field="*{titulo}" required
+                           placeholder="Titulo de la encuesta">
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripcion:</label>
+                    <textarea id="descripcion" th:field="*{descripcion}" rows="4"
+                              placeholder="Describe la encuesta..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Crear Encuesta</button>
+                <a href="/admin/encuestas" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

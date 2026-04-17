@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menus - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#127869; Gestion de Menus</h1>
+        <a href="/admin/menus/nuevo" class="btn btn-primary">+ Nuevo Menu</a>
+        <a href="/admin" class="btn btn-secondary">Volver al panel</a>
+
+        <table th:if="${!menus.isEmpty()}" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Primer Plato</th>
+                    <th>Segundo Plato</th>
+                    <th>Postre</th>
+                    <th>Bebida</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="menu : ${menus}">
+                    <td th:text="${menu.idMenu}"></td>
+                    <td th:text="${menu.fecha}"></td>
+                    <td th:text="${menu.primerPlato.nombre}"></td>
+                    <td th:text="${menu.segundoPlato.nombre}"></td>
+                    <td th:text="${menu.postre.nombre}"></td>
+                    <td th:text="${menu.bebida.nombre}"></td>
+                    <td>
+                        <a th:href="@{'/admin/reservas/menu/' + ${menu.idMenu}}"
+                           class="btn btn-sm">Ver Reservas</a>
+                        <form th:action="@{'/admin/menus/' + ${menu.idMenu} + '/eliminar'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${menus.isEmpty()}" class="text-muted">No hay menus creados.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

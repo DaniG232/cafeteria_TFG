@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <div class="card">
+            <h1 th:text="${encuesta.titulo}"></h1>
+            <p th:text="${encuesta.descripcion}"></p>
+            <small class="text-muted" th:text="'Creada: ' + ${encuesta.fechaCreacion}"></small>
+
+            <div class="mt-2">
+                <p><strong>Respuestas totales:</strong> <span th:text="${totalRespuestas}"></span></p>
+            </div>
+
+            <!-- Boton para rellenar (solo profesores que no la hayan rellenado) -->
+            <div sec:authorize="hasRole('PROFESOR')">
+                <div th:if="${!yaRellenada}">
+                    <form th:action="@{'/encuestas/' + ${encuesta.idEncuesta} + '/rellenar'}" method="post">
+                        <button type="submit" class="btn btn-primary">
+                            &#9989; Participar en esta encuesta
+                        </button>
+                    </form>
+                </div>
+                <div th:if="${yaRellenada}">
+                    <p class="alert alert-success">Ya has participado en esta encuesta.</p>
+                </div>
+            </div>
+        </div>
+
+        <a href="/encuestas" class="btn btn-secondary">Volver a encuestas</a>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesion - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>&#128274; Iniciar Sesion</h2>
+
+            <div th:if="${param.error}" class="alert alert-error">
+                Email o contrasena incorrectos.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+                Has cerrado sesion correctamente.
+            </div>
+            <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+
+            <form method="post" th:action="@{/login}">
+                <div class="form-group">
+                    <label for="username">Email:</label>
+                    <input type="email" id="username" name="username" required
+                           placeholder="tu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Contrasena:</label>
+                    <input type="password" id="password" name="password" required
+                           placeholder="Tu contrasena">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+            </form>
+
+            <p class="auth-link">
+                No tienes cuenta? <a href="/usuarios/registro">Registrate aqui</a>
+            </p>
+            <p class="auth-link">
+                <a href="/">Volver al inicio</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

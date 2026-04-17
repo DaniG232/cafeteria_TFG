@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platos - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#127860; Gestion de Platos</h1>
+        <a href="/admin/platos/nuevo" class="btn btn-primary">+ Nuevo Plato</a>
+        <a href="/admin" class="btn btn-secondary">Volver al panel</a>
+
+        <table th:if="${!platos.isEmpty()}" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Activo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="plato : ${platos}">
+                    <td th:text="${plato.idPlato}"></td>
+                    <td th:text="${plato.nombre}"></td>
+                    <td th:text="${plato.tipo}"></td>
+                    <td th:text="${plato.precio} + ' EUR'"></td>
+                    <td>
+                        <span th:if="${plato.activo}" class="badge badge-success">SI</span>
+                        <span th:if="${!plato.activo}" class="badge badge-error">NO</span>
+                    </td>
+                    <td>
+                        <a th:href="@{'/admin/platos/' + ${plato.idPlato} + '/editar'}"
+                           class="btn btn-sm">Editar</a>
+                        <form th:if="${plato.activo}"
+                              th:action="@{'/admin/platos/' + ${plato.idPlato} + '/desactivar'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-danger">Desactivar</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${platos.isEmpty()}" class="text-muted">No hay platos registrados.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

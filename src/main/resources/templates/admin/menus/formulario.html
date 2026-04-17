@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Menu - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#127869; Crear Nuevo Menu</h1>
+
+        <div class="card">
+            <form action="/admin/menus/nuevo" method="post">
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="primerPlato">Primer Plato:</label>
+                    <select id="primerPlato" name="primerPlato" required>
+                        <option value="">-- Selecciona --</option>
+                        <option th:each="p : ${primeros}"
+                                th:value="${p.idPlato}"
+                                th:text="${p.nombre}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="segundoPlato">Segundo Plato:</label>
+                    <select id="segundoPlato" name="segundoPlato" required>
+                        <option value="">-- Selecciona --</option>
+                        <option th:each="p : ${segundos}"
+                                th:value="${p.idPlato}"
+                                th:text="${p.nombre}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="postre">Postre:</label>
+                    <select id="postre" name="postre" required>
+                        <option value="">-- Selecciona --</option>
+                        <option th:each="p : ${postres}"
+                                th:value="${p.idPlato}"
+                                th:text="${p.nombre}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="bebida">Bebida:</label>
+                    <select id="bebida" name="bebida" required>
+                        <option value="">-- Selecciona --</option>
+                        <option th:each="p : ${bebidas}"
+                                th:value="${p.idPlato}"
+                                th:text="${p.nombre}"></option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Crear Menu</button>
+                <a href="/admin/menus" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

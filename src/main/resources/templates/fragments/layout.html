@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ========== NAVBAR ========== -->
+<nav th:fragment="navbar" class="navbar">
+    <div class="navbar-brand">
+        <a href="/home">&#127860; Cafeteria Instituto</a>
+    </div>
+    <div class="navbar-links" sec:authorize="isAuthenticated()">
+        <a href="/home">Inicio</a>
+        <a href="/menus">Menus</a>
+        <a href="/encuestas">Encuestas</a>
+        <a sec:authorize="hasRole('COCINERO')" href="/admin">Panel Admin</a>
+        <span class="navbar-user">
+            <span sec:authentication="name"></span>
+            (<span sec:authentication="principal.rol"></span>)
+        </span>
+        <form action="/logout" method="post" style="display:inline">
+            <button type="submit" class="btn btn-logout">Cerrar sesion</button>
+        </form>
+    </div>
+</nav>
+
+<!-- ========== FOOTER ========== -->
+<footer th:fragment="footer" class="footer">
+    <p>&copy; 2026 Cafeteria Instituto - Proyecto TFG DAM</p>
+</footer>
+
+<!-- ========== MENSAJES ========== -->
+<div th:fragment="mensajes">
+    <div th:if="${mensaje}" class="alert alert-success" th:text="${mensaje}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+</div>
+
+</html>

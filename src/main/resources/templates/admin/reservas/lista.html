@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128203; Reservas por Menu</h1>
+        <a href="/admin" class="btn btn-secondary">Volver al panel</a>
+
+        <div th:if="${!menus.isEmpty()}" class="grid mt-2">
+            <div th:each="menu : ${menus}" class="card">
+                <h3 th:text="'Menu del ' + ${menu.fecha}"></h3>
+                <p>
+                    <span th:text="${menu.primerPlato.nombre}"></span> |
+                    <span th:text="${menu.segundoPlato.nombre}"></span> |
+                    <span th:text="${menu.postre.nombre}"></span> |
+                    <span th:text="${menu.bebida.nombre}"></span>
+                </p>
+                <a th:href="@{'/admin/reservas/menu/' + ${menu.idMenu}}"
+                   class="btn btn-primary btn-sm">Ver Reservas</a>
+            </div>
+        </div>
+
+        <p th:if="${menus.isEmpty()}" class="text-muted">No hay menus con reservas.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

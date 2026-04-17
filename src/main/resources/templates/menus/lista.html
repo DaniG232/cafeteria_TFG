@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menus - Cafeteria Instituto</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#127869; Menus Disponibles</h1>
+
+        <div th:if="${!menus.isEmpty()}" class="grid">
+            <div th:each="menu : ${menus}" class="card">
+                <h3 th:text="${menu.fecha}"></h3>
+                <table class="table">
+                    <tr>
+                        <th>Primer Plato</th>
+                        <td th:text="${menu.primerPlato.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Segundo Plato</th>
+                        <td th:text="${menu.segundoPlato.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Postre</th>
+                        <td th:text="${menu.postre.nombre}"></td>
+                    </tr>
+                    <tr>
+                        <th>Bebida</th>
+                        <td th:text="${menu.bebida.nombre}"></td>
+                    </tr>
+                </table>
+                <a th:href="@{'/menus/' + ${menu.idMenu}}" class="btn btn-primary">
+                    Ver detalle / Reservar
+                </a>
+            </div>
+        </div>
+
+        <p th:if="${menus.isEmpty()}" class="text-muted">
+            No hay menus disponibles proximamente.
+        </p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

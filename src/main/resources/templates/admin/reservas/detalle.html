@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas del Menu - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="container">
+        <div th:replace="~{fragments/layout :: mensajes}"></div>
+
+        <h1>&#128203; Reservas del Menu del <span th:text="${menu.fecha}"></span></h1>
+        <a href="/admin/reservas" class="btn btn-secondary">Volver</a>
+
+        <table th:if="${!reservas.isEmpty()}" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Profesor</th>
+                    <th>Email</th>
+                    <th>Fecha Reserva</th>
+                    <th>Estado</th>
+                    <th>Codigo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="reserva : ${reservas}">
+                    <td th:text="${reserva.usuario.nombre}"></td>
+                    <td th:text="${reserva.usuario.email}"></td>
+                    <td th:text="${reserva.fechaReserva}"></td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${reserva.estado == 'PENDIENTE'} ? 'badge-warning' :
+                                               (${reserva.estado == 'RECOGIDA'} ? 'badge-success' : 'badge-error')"
+                              th:text="${reserva.estado}"></span>
+                    </td>
+                    <td th:text="${reserva.codigoRecogida}"></td>
+                    <td>
+                        <form th:if="${reserva.estado == 'PENDIENTE'}"
+                              th:action="@{'/admin/reservas/' + ${reserva.idReserva} + '/asistida'}"
+                              method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                Marcar Recogida
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p th:if="${reservas.isEmpty()}" class="text-muted">No hay reservas para este menu.</p>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
