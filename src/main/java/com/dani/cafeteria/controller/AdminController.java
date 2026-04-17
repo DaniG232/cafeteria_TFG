@@ -2,19 +2,20 @@ package com.dani.cafeteria.controller;
 
 import com.dani.cafeteria.entity.*;
 import com.dani.cafeteria.service.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Panel de administracion exclusivo para cocineros.
  * Gestion de platos, menus, encuestas y reservas.
  */
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
 
@@ -39,212 +40,158 @@ public class AdminController {
     // ========== PANEL PRINCIPAL ==========
 
     @GetMapping
-    public String panelAdmin(@AuthenticationPrincipal Usuario usuario, Model model) {
-        model.addAttribute("usuario", usuario);
-        model.addAttribute("totalPlatos", servicioPlatos.listarPlatos().size());
-        model.addAttribute("totalMenus", servicioMenus.listarMenusProximos().size());
-        model.addAttribute("totalEncuestas", servicioEncuestas.listarEncuestas().size());
-        return "admin/panel";
+    public ResponseEntity<Map<String, Object>> panelAdmin(@AuthenticationPrincipal Usuario usuario) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("usuario", usuario);
+        model.put("totalPlatos", servicioPlatos.listarPlatos().size());
+        model.put("totalMenus", servicioMenus.listarMenusProximos().size());
+        model.put("totalEncuestas", servicioEncuestas.listarEncuestas().size());
+        return ResponseEntity.ok(model);
     }
 
     // ==================== PLATOS ====================
 
     @GetMapping("/platos")
-    public String listarPlatos(Model model) {
-        model.addAttribute("platos", servicioPlatos.listarPlatos());
-        return "admin/platos/lista";
+    public ResponseEntity<List<Plato>> listarPlatos() {
+        return ResponseEntity.ok(servicioPlatos.listarPlatos());
     }
 
-    @GetMapping("/platos/nuevo")
-    public String formularioPlato(Model model) {
-        model.addAttribute("plato", new Plato());
-        model.addAttribute("tipos", Plato.TipoPlato.values());
-        return "admin/platos/formulario";
-    }
-
-    @PostMapping("/platos/nuevo")
-    public String crearPlato(@ModelAttribute Plato plato,
-                             RedirectAttributes redirectAttributes) {
+    @PostMapping("/platos")
+    public ResponseEntity<Map<String, String>> crearPlato(@RequestBody Plato plato) {
         try {
             servicioPlatos.crearPlato(plato);
-            redirectAttributes.addFlashAttribute("mensaje", "Plato creado correctamente");
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Plato creado correctamente"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/platos";
     }
 
-    @GetMapping("/platos/{id}/editar")
-    public String editarPlatoForm(@PathVariable Integer id, Model model) {
-        model.addAttribute("plato", servicioPlatos.buscarPorId(id));
-        model.addAttribute("tipos", Plato.TipoPlato.values());
-        return "admin/platos/formulario";
-    }
-
-    @PostMapping("/platos/{id}/editar")
-    public String editarPlato(@PathVariable Integer id,
-                              @ModelAttribute Plato plato,
-                              RedirectAttributes redirectAttributes) {
+    @PutMapping("/platos/{id}")
+    public ResponseEntity<Map<String, String>> editarPlato(@PathVariable Integer id,
+                                                           @RequestBody Plato plato) {
         try {
             servicioPlatos.actualizarPlato(id, plato);
-            redirectAttributes.addFlashAttribute("mensaje", "Plato actualizado");
+            return ResponseEntity.ok(Map.of("mensaje", "Plato actualizado"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/platos";
     }
 
     @PostMapping("/platos/{id}/desactivar")
-    public String desactivarPlato(@PathVariable Integer id,
-                                  RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> desactivarPlato(@PathVariable Integer id) {
         servicioPlatos.desactivarPlato(id);
-        redirectAttributes.addFlashAttribute("mensaje", "Plato desactivado");
-        return "redirect:/admin/platos";
+        return ResponseEntity.ok(Map.of("mensaje", "Plato desactivado"));
     }
 
     // ==================== MENUS ====================
 
     @GetMapping("/menus")
-    public String listarMenusAdmin(Model model) {
-        model.addAttribute("menus", servicioMenus.listarMenusProximos());
-        return "admin/menus/lista";
+    public ResponseEntity<List<Menu>> listarMenusAdmin() {
+        return ResponseEntity.ok(servicioMenus.listarMenusProximos());
     }
 
-    @GetMapping("/menus/nuevo")
-    public String formularioMenu(Model model) {
-        model.addAttribute("menu", new Menu());
-        model.addAttribute("primeros", servicioPlatos.listarPorTipo(Plato.TipoPlato.PRIMERO));
-        model.addAttribute("segundos", servicioPlatos.listarPorTipo(Plato.TipoPlato.SEGUNDO));
-        model.addAttribute("postres", servicioPlatos.listarPorTipo(Plato.TipoPlato.POSTRE));
-        model.addAttribute("bebidas", servicioPlatos.listarPorTipo(Plato.TipoPlato.BEBIDA));
-        return "admin/menus/formulario";
-    }
-
-    @PostMapping("/menus/nuevo")
-    public String crearMenu(@RequestParam String fecha,
-                            @RequestParam Integer primerPlato,
-                            @RequestParam Integer segundoPlato,
-                            @RequestParam Integer postre,
-                            @RequestParam Integer bebida,
-                            RedirectAttributes redirectAttributes) {
+    @PostMapping("/menus")
+    public ResponseEntity<Map<String, String>> crearMenu(@RequestBody Menu menu) {
         try {
-            Menu menu = Menu.builder()
-                    .fecha(java.time.LocalDate.parse(fecha))
-                    .primerPlato(servicioPlatos.buscarPorId(primerPlato))
-                    .segundoPlato(servicioPlatos.buscarPorId(segundoPlato))
-                    .postre(servicioPlatos.buscarPorId(postre))
-                    .bebida(servicioPlatos.buscarPorId(bebida))
-                    .build();
             servicioMenus.crearMenu(menu);
-            redirectAttributes.addFlashAttribute("mensaje", "Menu creado correctamente");
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Menu creado correctamente"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/menus";
     }
 
-    @PostMapping("/menus/{id}/eliminar")
-    public String eliminarMenu(@PathVariable Integer id,
-                               RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/menus/{id}")
+    public ResponseEntity<Map<String, String>> eliminarMenu(@PathVariable Integer id) {
         try {
             servicioMenus.eliminarMenu(id);
-            redirectAttributes.addFlashAttribute("mensaje", "Menu eliminado");
+            return ResponseEntity.ok(Map.of("mensaje", "Menu eliminado"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/menus";
     }
 
     // ==================== ENCUESTAS ====================
 
     @GetMapping("/encuestas")
-    public String listarEncuestasAdmin(Model model) {
-        model.addAttribute("encuestas", servicioEncuestas.listarEncuestas());
-        return "admin/encuestas/lista";
+    public ResponseEntity<List<Encuesta>> listarEncuestasAdmin() {
+        return ResponseEntity.ok(servicioEncuestas.listarEncuestas());
     }
 
-    @GetMapping("/encuestas/nueva")
-    public String formularioEncuesta(Model model) {
-        model.addAttribute("encuesta", new Encuesta());
-        return "admin/encuestas/formulario";
-    }
-
-    @PostMapping("/encuestas/nueva")
-    public String crearEncuesta(@ModelAttribute Encuesta encuesta,
-                                RedirectAttributes redirectAttributes) {
+    @PostMapping("/encuestas")
+    public ResponseEntity<Map<String, String>> crearEncuesta(@RequestBody Encuesta encuesta) {
         try {
             servicioEncuestas.crearEncuesta(encuesta);
-            redirectAttributes.addFlashAttribute("mensaje", "Encuesta creada correctamente");
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Encuesta creada correctamente"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/encuestas";
     }
 
-    @PostMapping("/encuestas/{id}/eliminar")
-    public String eliminarEncuesta(@PathVariable Integer id,
-                                   RedirectAttributes redirectAttributes) {
+    @DeleteMapping("/encuestas/{id}")
+    public ResponseEntity<Map<String, String>> eliminarEncuesta(@PathVariable Integer id) {
         try {
             servicioEncuestas.eliminarEncuesta(id);
-            redirectAttributes.addFlashAttribute("mensaje", "Encuesta eliminada");
+            return ResponseEntity.ok(Map.of("mensaje", "Encuesta eliminada"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/admin/encuestas";
     }
 
     // ==================== RESERVAS (vista cocinero) ====================
 
     @GetMapping("/reservas")
-    public String listarReservasAdmin(Model model) {
+    public ResponseEntity<List<Menu>> listarReservasAdmin() {
         List<Menu> menus = servicioMenus.listarMenusProximos();
-        model.addAttribute("menus", menus);
-        return "admin/reservas/lista";
+        return ResponseEntity.ok(menus);
     }
 
     @GetMapping("/reservas/menu/{idMenu}")
-    public String verReservasMenu(@PathVariable Integer idMenu, Model model) {
+    public ResponseEntity<Map<String, Object>> verReservasMenu(@PathVariable Integer idMenu) {
         Menu menu = servicioMenus.buscarPorId(idMenu);
-        model.addAttribute("menu", menu);
-        model.addAttribute("reservas", servicioReservas.listarReservasMenu(idMenu));
-        return "admin/reservas/detalle";
+        List<Reserva> reservas = servicioReservas.listarReservasMenu(idMenu);
+        Map<String, Object> model = new HashMap<>();
+        model.put("menu", menu);
+        model.put("reservas", reservas);
+        return ResponseEntity.ok(model);
     }
 
     @PostMapping("/reservas/{id}/asistida")
-    public String marcarAsistida(@PathVariable Integer id,
-                                 RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> marcarAsistida(@PathVariable Integer id) {
         try {
-            Reserva reserva = servicioReservas.buscarPorId(id);
             servicioReservas.marcarAsistida(id);
-            redirectAttributes.addFlashAttribute("mensaje", "Reserva marcada como recogida");
-            return "redirect:/admin/reservas/menu/" + reserva.getMenu().getIdMenu();
+            return ResponseEntity.ok(Map.of("mensaje", "Reserva marcada como recogida"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/admin/reservas";
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     // ==================== USUARIOS ====================
 
     @GetMapping("/usuarios")
-    public String listarUsuarios(Model model) {
-        model.addAttribute("usuarios", servicioUsuarios.listarUsuarios());
-        return "admin/usuarios/lista";
+    public ResponseEntity<List<Usuario>> listarUsuarios() {
+        return ResponseEntity.ok(servicioUsuarios.listarUsuarios());
     }
 
     @PostMapping("/usuarios/{email}/desactivar")
-    public String desactivarUsuario(@PathVariable String email,
-                                    RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> desactivarUsuario(@PathVariable String email) {
         servicioUsuarios.desactivarUsuario(email);
-        redirectAttributes.addFlashAttribute("mensaje", "Usuario desactivado");
-        return "redirect:/admin/usuarios";
+        return ResponseEntity.ok(Map.of("mensaje", "Usuario desactivado"));
     }
 
     @PostMapping("/usuarios/{email}/activar")
-    public String activarUsuario(@PathVariable String email,
-                                 RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> activarUsuario(@PathVariable String email) {
         servicioUsuarios.activarUsuario(email);
-        redirectAttributes.addFlashAttribute("mensaje", "Usuario activado");
-        return "redirect:/admin/usuarios";
+        return ResponseEntity.ok(Map.of("mensaje", "Usuario activado"));
+    }
+
+    @PostMapping("/usuarios/{email}/cambiar-rol")
+    public ResponseEntity<Map<String, String>> cambiarRolUsuario(@PathVariable String email,
+                                                                 @RequestBody Map<String, String> body) {
+        try {
+            servicioUsuarios.cambiarRolUsuario(email, body.get("rol"));
+            return ResponseEntity.ok(Map.of("mensaje", "Rol del usuario actualizado correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

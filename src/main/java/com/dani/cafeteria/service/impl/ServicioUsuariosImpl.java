@@ -1,5 +1,6 @@
 package com.dani.cafeteria.service.impl;
 
+import com.dani.cafeteria.entity.Rol;
 import com.dani.cafeteria.entity.Usuario;
 import com.dani.cafeteria.repository.UsuarioRepository;
 import com.dani.cafeteria.service.IServicioUsuarios;
@@ -65,5 +66,17 @@ public class ServicioUsuariosImpl implements IServicioUsuarios {
     @Override
     public boolean existeUsuario(String email) {
         return usuarioRepository.existsById(email);
+    }
+
+    @Override
+    public void cambiarRolUsuario(String email, String nuevoRol) {
+        Usuario usuario = buscarPorEmail(email);
+        try {
+            Rol rol = Rol.valueOf(nuevoRol.toUpperCase());
+            usuario.setRol(rol);
+            usuarioRepository.save(usuario);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("El rol especificado no es válido: " + nuevoRol);
+        }
     }
 }

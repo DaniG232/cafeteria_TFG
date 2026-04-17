@@ -30,7 +30,17 @@
                 <tr th:each="u : ${usuarios}">
                     <td th:text="${u.email}"></td>
                     <td th:text="${u.nombre}"></td>
-                    <td th:text="${u.rol}"></td>
+                    <td>
+                        <form th:action="@{'/admin/usuarios/' + ${u.email} + '/cambiar-rol'}" method="post" class="form-inline">
+                            <select name="rol" class="form-control form-control-sm">
+                                <option th:each="r : ${T(com.dani.cafeteria.entity.Rol).values()}"
+                                        th:value="${r}"
+                                        th:text="${r}"
+                                        th:selected="${r == u.rol}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary ml-1">Cambiar</button>
+                        </form>
+                    </td>
                     <td th:text="${u.fechaRegistro}"></td>
                     <td>
                         <span th:if="${u.estado}" class="badge badge-success">Activo</span>

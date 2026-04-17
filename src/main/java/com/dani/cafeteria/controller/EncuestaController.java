@@ -3,16 +3,18 @@ package com.dani.cafeteria.controller;
 import com.dani.cafeteria.entity.Encuesta;
 import com.dani.cafeteria.entity.Usuario;
 import com.dani.cafeteria.service.IServicioEncuestas;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador para la gestion de encuestas.
  */
-@Controller
+@RestController
 @RequestMapping("/encuestas")
 public class EncuestaController {
 
@@ -23,39 +25,33 @@ public class EncuestaController {
     }
 
     @GetMapping
-    public String listarEncuestas(@AuthenticationPrincipal Usuario usuario, Model model) {
-        model.addAttribute("encuestas", servicioEncuestas.listarEncuestas());
-        model.addAttribute("usuario", usuario);
-        return "encuestas/lista";
+    public ResponseEntity<List<Encuesta>> listarEncuestas() {
+        return ResponseEntity.ok(servicioEncuestas.listarEncuestas());
     }
 
     @GetMapping("/{id}")
-    public String verEncuesta(@PathVariable Integer id,
-                              @AuthenticationPrincipal Usuario usuario,
-                              Model model) {
+    public ResponseEntity<Map<String, Object>> verEncuesta(@PathVariable Integer id,
+                                                           @AuthenticationPrincipal Usuario usuario) {
         Encuesta encuesta = servicioEncuestas.buscarPorId(id);
-        model.addAttribute("encuesta", encuesta);
-        model.addAttribute("usuario", usuario);
-
         boolean yaRellenada = servicioEncuestas.haRellenado(usuario.getEmail(), id);
-        model.addAttribute("yaRellenada", yaRellenada);
-
         long totalRespuestas = servicioEncuestas.contarRespuestasEncuesta(id);
-        model.addAttribute("totalRespuestas", totalRespuestas);
 
-        return "encuestas/detalle";
+        Map<String, Object> model = new HashMap<>();
+        model.put("encuesta", encuesta);
+        model.put("yaRellenada", yaRellenada);
+        model.put("totalRespuestas", totalRespuestas);
+
+        return ResponseEntity.ok(model);
     }
 
     @PostMapping("/{id}/rellenar")
-    public String rellenarEncuesta(@PathVariable Integer id,
-                                   @AuthenticationPrincipal Usuario usuario,
-                                   RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> rellenarEncuesta(@PathVariable Integer id,
+                                                                @AuthenticationPrincipal Usuario usuario) {
         try {
             servicioEncuestas.rellenarEncuesta(usuario.getEmail(), id);
-            redirectAttributes.addFlashAttribute("mensaje", "Encuesta completada");
+            return ResponseEntity.ok(Map.of("mensaje", "Encuesta completada"));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return "redirect:/encuestas/" + id;
     }
 }

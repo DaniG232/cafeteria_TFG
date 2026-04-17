@@ -6,17 +6,19 @@ import com.dani.cafeteria.entity.Usuario;
 import com.dani.cafeteria.service.IServicioEncuestas;
 import com.dani.cafeteria.service.IServicioMenus;
 import com.dani.cafeteria.service.IServicioReservas;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controlador principal: pagina de inicio, login y home.
  */
-@Controller
+@RestController
 public class HomeController {
 
     private final IServicioMenus servicioMenus;
@@ -32,34 +34,32 @@ public class HomeController {
     }
 
     @GetMapping("/")
-    public String inicio() {
-        return "index";
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    public ResponseEntity<Map<String, String>> inicio() {
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Bienvenido a la API de la Cafeteria");
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/home")
-    public String home(@AuthenticationPrincipal Usuario usuario, Model model) {
-        model.addAttribute("usuario", usuario);
+    public ResponseEntity<Map<String, Object>> home(@AuthenticationPrincipal Usuario usuario) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("usuario", usuario);
 
         // Menu del dia
         Menu menuHoy = servicioMenus.buscarMenuHoy();
-        model.addAttribute("menuHoy", menuHoy);
+        model.put("menuHoy", menuHoy);
 
         // Menus proximos
         List<Menu> menusProximos = servicioMenus.listarMenusProximos();
-        model.addAttribute("menusProximos", menusProximos);
+        model.put("menusProximos", menusProximos);
 
         // Reservas del usuario
         List<Reserva> misReservas = servicioReservas.listarReservasUsuario(usuario.getEmail());
-        model.addAttribute("misReservas", misReservas);
+        model.put("misReservas", misReservas);
 
         // Encuestas disponibles
-        model.addAttribute("encuestas", servicioEncuestas.listarEncuestas());
+        model.put("encuestas", servicioEncuestas.listarEncuestas());
 
-        return "home";
+        return ResponseEntity.ok(model);
     }
 }

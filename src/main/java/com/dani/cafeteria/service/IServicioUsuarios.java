@@ -19,4 +19,6 @@ public interface IServicioUsuarios {
     void activarUsuario(String email);
 
     boolean existeUsuario(String email);
+
+    void cambiarRolUsuario(String email, String nuevoRol);
 }

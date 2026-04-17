@@ -1,17 +1,17 @@
 package com.dani.cafeteria.controller;
 
-import com.dani.cafeteria.entity.Rol;
 import com.dani.cafeteria.entity.Usuario;
 import com.dani.cafeteria.service.IServicioUsuarios;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.Map;
 
 /**
  * Controlador para registro de usuarios y gestion de perfil.
  */
-@Controller
+@RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
@@ -21,23 +21,13 @@ public class UsuarioController {
         this.servicioUsuarios = servicioUsuarios;
     }
 
-    @GetMapping("/registro")
-    public String mostrarRegistro(Model model) {
-        model.addAttribute("usuario", new Usuario());
-        model.addAttribute("roles", Rol.values());
-        return "registro";
-    }
-
     @PostMapping("/registro")
-    public String registrarUsuario(@ModelAttribute Usuario usuario,
-                                    RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Map<String, String>> registrarUsuario(@RequestBody Usuario usuario) {
         try {
             servicioUsuarios.crearUsuario(usuario);
-            redirectAttributes.addFlashAttribute("mensaje", "Registro exitoso. Ya puedes iniciar sesion.");
-            return "redirect:/login";
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("mensaje", "Registro exitoso."));
         } catch (RuntimeException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/usuarios/registro";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 }
